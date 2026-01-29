@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>StreetConnect Mzansi — Beta Access</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-slide-in { animation: slideIn 0.5s ease-out; }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen flex items-center justify-center p-4">
+
+  <div class="w-full max-w-2xl bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 animate-slide-in">
+
+    <!-- Header -->
+    <div class="text-center mb-6">
+      <h1 class="text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        StreetConnect Mzansi
+      </h1>
+      <p class="text-sm text-gray-600 mt-2">
+        Reserve your spot for beta access
+      </p>
+    </div>
+
+    <!-- Progress -->
+    <div class="mb-8">
+      <div class="flex justify-between mb-2">
+        <span id="progressText" class="text-xs font-medium text-gray-600">Step 1 of 3</span>
+        <span class="text-xs text-gray-500">Beta registration</span>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-2">
+        <div id="progressBar"
+          class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+          style="width: 33%">
+        </div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form id="betaForm" class="space-y-6">
+
+      <!-- STEP 1 -->
+      <div class="step">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+          I am joining as
+        </h2>
+
+        <div class="grid grid-cols-2 gap-4">
+          <button type="button" onclick="selectType('user')" data-type="user"
+            class="type-btn p-6 border-2 rounded-xl text-center hover:border-blue-500 hover:bg-blue-50 transition">
+            <i data-lucide="user" class="w-10 h-10 mx-auto mb-2 text-blue-600"></i>
+            <h3 class="font-semibold">User</h3>
+            <p class="text-xs text-gray-500">Browse & discover</p>
+          </button>
+
+          <button type="button" onclick="selectType('vendor')" data-type="vendor"
+            class="type-btn p-6 border-2 rounded-xl text-center hover:border-purple-500 hover:bg-purple-50 transition">
+            <i data-lucide="briefcase" class="w-10 h-10 mx-auto mb-2 text-purple-600"></i>
+            <h3 class="font-semibold">Vendor</h3>
+            <p class="text-xs text-gray-500">Sell & promote</p>
+          </button>
+        </div>
+
+        <button type="button" onclick="nextStep()" id="step1Next" disabled
+          class="w-full mt-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-semibold disabled:opacity-50">
+          Continue
+        </button>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step hidden">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <i data-lucide="mail" class="w-6 h-6 text-blue-600"></i>
+          Your details
+        </h2>
+
+        <div class="space-y-4">
+          <input id="name" required placeholder="Full name"
+            class="w-full px-4 py-3 border rounded-xl" />
+          <input id="email" type="email" required placeholder="Email address"
+            class="w-full px-4 py-3 border rounded-xl" />
+          <input id="phone" placeholder="Phone (optional)"
+            class="w-full px-4 py-3 border rounded-xl" />
+        </div>
+
+        <div class="flex gap-3 mt-6">
+          <button type="button" onclick="prevStep()" class="flex-1 border py-3 rounded-xl">Back</button>
+          <button type="button" onclick="nextStep()"
+            class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl">
+            Continue
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step hidden">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <i data-lucide="map-pin" class="w-6 h-6 text-blue-600"></i>
+          Location
+        </h2>
+
+        <div class="space-y-4">
+          <input id="city" required placeholder="City"
+            class="w-full px-4 py-3 border rounded-xl" />
+          <input id="province" required placeholder="Province"
+            class="w-full px-4 py-3 border rounded-xl" />
+        </div>
+
+        <button type="submit"
+          class="w-full mt-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-semibold">
+          Reserve My Beta Spot
+        </button>
+      </div>
+
+    </form>
+
+    <p id="success" class="hidden text-green-600 text-center mt-6 text-sm">
+      ✅ Thanks! Your beta spot has been reserved.
+    </p>
+
+    <p class="text-xs text-center mt-6 text-gray-500">
+      We’ll contact you when beta access opens.
+    </p>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    const steps = document.querySelectorAll(".step");
+    let currentStep = 0;
+    let joinType = "";
+
+    function updateProgress() {
+      document.getElementById("progressText").textContent = `Step ${currentStep + 1} of 3`;
+      document.getElementById("progressBar").style.width = `${((currentStep + 1) / 3) * 100}%`;
+    }
+
+    window.selectType = function(type) {
+      joinType = type;
+      document.querySelectorAll(".type-btn").forEach(b => b.classList.remove("border-blue-500", "border-purple-500"));
+      document.querySelector(`[data-type="${type}"]`).classList.add(type === "user" ? "border-blue-500" : "border-purple-500");
+      document.getElementById("step1Next").disabled = false;
+    };
+
+    window.nextStep = function() {
+      steps[currentStep].classList.add("hidden");
+      currentStep++;
+      steps[currentStep].classList.remove("hidden");
+      updateProgress();
+      lucide.createIcons();
+    };
+
+    window.prevStep = function() {
+      steps[currentStep].classList.add("hidden");
+      currentStep--;
+      steps[currentStep].classList.remove("hidden");
+      updateProgress();
+      lucide.createIcons();
+    };
+
+    document.getElementById("betaForm").addEventListener("submit", e => {
+      e.preventDefault();
+
+      // TODO: Send data to Firebase / API / Netlify Forms
+      console.log({
+        joinType,
+        name: name.value,
+        email: email.value,
+        phone: phone.value,
+        city: city.value,
+        province: province.value
+      });
+
+      document.getElementById("betaForm").classList.add("hidden");
+      document.getElementById("success").classList.remove("hidden");
+    });
+  </script>
+
+</body>
+</html>
